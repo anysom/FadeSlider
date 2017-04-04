@@ -3,18 +3,63 @@
     <link href="css/main.css" rel="stylesheet" type="text/css">
     <link href="css/FadeSlider.min.css" rel="stylesheet" type="text/css">
 
+    <script src="lib/zepto.js"></script>
+    <script src="lib/hammer.min.js"></script>
     <script src="js/FadeSlider.js"></script>
 
     <style>
+      .slide {
+        padding-left: 25px;
+      }
+
+      .slider-container {
+        width: 50%;
+        margin: 100px auto 0;
+      }
     </style>
   </head>
   <body>
-    <h1>FadeSlider - demonstration</h1>
+    <div class="fade-slider-container">
+      <h1>FadeSlider - demonstration</h1>
+      <div class="slider-container">
+        <div class="fade-slider">
+          <ul class="falde-slider__list">
+            <li class="fade-slider__page">
+              <div class="slide">
+                <img src="/images/1.jpg" alt="">
+              </div>
+            </li>
+            <li class="fade-slider__page">
+              <div class="slide">
+                <img src="/images/2.jpg" alt="">
+              </div>
+            </li>
+            <li class="fade-slider__page">
+              <div class="slide">
+                <img src="/images/3.jpg" alt="">
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
 
   </body>
 
   <script>
     window.onload = function() {
+      // TODO: remove this crap
+      var settings = {
+        gutter: 25,
+        gutterSmall: 8,
+        layoutBreakpoint: 1020
+      };
+
+      window.settings = settings;
+
+      var fadeSliderElem = document.querySelector('.fade-slider');
+      var fadeSlider = new FadeSlider($(fadeSliderElem));
     };
   </script>
 </html>

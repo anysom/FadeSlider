@@ -1,17 +1,39 @@
+// Define throttle fallback function
+var fallbackThrottle = function(func, wait) {
+  var timer = null;
+
+  return function() {
+    var context = this,
+        args = arguments;
+
+    if(timer === null) {
+      timer = setTimeout(function() {
+        func.apply(context, args);
+        timer = null;
+      }, wait);
+    }
+  };
+};
+
 ;(function(root, fadeSlider) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register fadeSlider as an anonymous module
-        define(fadeSlider);
+        define(["zeptojs", "lodash/throttle", "hammerjs"], fadeSlider);
     } else if (typeof exports === 'object') {
-        // Node. Does not work with strict CommonJS, but
-        // only CommonJS-like environments that support module.exports,
+      // Node. Does not work with strict CommonJS, but
+      // only CommonJS-like environments that support module.exports,
     	// like Node.
-        module.exports = fadePager();
+      var throttle = require('lodash/throttle');
+      var hammer = require('hammerjs');
+      var $ = require('zeptojs');
+      module.exports = fadeSlider($, throttle, hammer);
     } else {
-        // Browser globals. Register fadeSlider on window
-        root.FadeSlider = fadeSlider();
+      // Browser globals. Register fadeSlider on window
+      var $ = root.$ || root.zepto || root.jQuery;
+      var throttle = root._ !== undefined ? root._.throttle : null;
+      root.FadeSlider = fadeSlider($, throttle, root.Hammer);
     }
-})(this, function() {
+})(this, function($, throttle, Hammer) {
   'use strict';
 
   /**
@@ -36,8 +58,7 @@
   */
 
   // Load dependencies
-  var throttle = require('lodash/function/throttle.js');
-  var Hammer = require('hammerjs');
+  throttle = throttle || fallbackThrottle;
 
   /*******
   *
@@ -185,6 +206,7 @@
         containerSize = elem.width();
         pages.width(containerSize);
 
+        // TODO: Remove dependency upon layout breakpoints
         var padding = $(window).width() >= window.settings.layoutBreakpoint ? window.settings.gutter : window.settings.gutterSmall;
         var height = (containerSize - padding) * (380 / 560);
         //The height can never be taller than the max height. In that case the bottom of the image is cropped

@@ -1,3 +1,15 @@
+$margin: 25px;
+$bp-small: 64em;
+
+// TODO: Remove this class dependency
+.clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
 .fade-slider {
   overflow-x: visible;
   position: relative;
@@ -18,7 +30,7 @@
     float: left;
     width: 100%;
     display: none;
-    max-height: calc(100vh - 300px);
+    max-height: calc(100vh - 300px); // TODO: Remove this restriction
     height: 100%;
     overflow: hidden;
   }
@@ -71,6 +83,7 @@
       }
     }
 
+    // TODO: Remove media query, as the slider should not know about this stuff.
     @media (min-width: $bp-small) {
       width: 1px;
       height: 19px;

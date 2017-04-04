@@ -17,8 +17,8 @@ var settings = {
   localhost:          '',
   baseDir:            'www/',
   scriptsDir:         'js/',
-  scriptName:         'fadePager.js',
-  mainSassFile:       'fadePager.scss',
+  scriptName:         'fadeSlider.js',
+  mainSassFile:       'fadeSlider.scss',
   stylesDir:          'css/'
 };
 
@@ -62,7 +62,7 @@ gulp.task('javascript', function() {
     .pipe(jshint.reporter('default'))
     .on('error', handleError)
     .pipe(uglify({ mangle: true }))
-    .pipe(rename('fadePager.min.js'))
+    .pipe(rename('fadeSlider.min.js'))
     .pipe(gulp.dest(settings.scriptsDir))
     .pipe(reload({stream:true}))
 });
@@ -73,13 +73,13 @@ gulp.task('sass', function () {
     .pipe(sass())
     .on('error', handleError)
     .pipe(minifyCSS())
-    .pipe(rename('fadePager.min.css'))
+    .pipe(rename('fadeSlider.min.css'))
     .pipe(gulp.dest(settings.stylesDir))
     .pipe(reload({stream: true}));
 });
 
 gulp.task('distribute', function () {
-  gulp.src([settings.scriptsDir+'fadePager.min.js', settings.stylesDir+'fadePager.min.css'])
+  gulp.src([settings.scriptsDir+'fadeSlider.min.js', settings.stylesDir+'fadeSlider.min.css'])
     .pipe(copy('dist', {
       prefix: 2
     }));

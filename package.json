@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "hammerjs": "^2.0.8",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "zeptojs": "^1.1.4"
   }
 }
