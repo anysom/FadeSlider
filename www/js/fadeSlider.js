@@ -36,22 +36,24 @@ var fallbackThrottle = function(func, wait) {
 
   /**
   * Markup:
-  * <div class="fade-pager">
-      <ul class="fade-pager__pages">
-        <li class="fade-pager__page frontpage-presentation__page active">
-          <img src="http://lorempixel.com/400/200/people/1" alt="alt text">
+    <div class="fade-slider">
+      <ul class="fade-slider__list">
+        <li class="fade-slider__page">
+          <div class="slide">
+            <img src="/images/1.jpg" alt="">
+          </div>
         </li>
-        <li class="fade-pager__page frontpage-presentation__page">
-          <img src="http://lorempixel.com/400/200/people/2" alt="alt text">
+        <li class="fade-slider__page">
+          <div class="slide">
+            <img src="/images/2.jpg" alt="">
+          </div>
+        </li>
+        <li class="fade-slider__page">
+          <div class="slide">
+            <img src="/images/3.jpg" alt="">
+          </div>
         </li>
       </ul>
-      <ul class="fade-pager__indicators">
-          <li class="fade-pager__indicator active"></li>
-          <li class="fade-pager__indicator"></li>
-      </ul>
-
-      <button class="fade-pager__btn--prev">Prev</button>
-      <button class="fade-pager__btn--next">next</button>
     </div>
   */
 
@@ -60,14 +62,25 @@ var fallbackThrottle = function(func, wait) {
 
   /*******
   *
-  * Options:
-  *   -auto: (BOOLEAN) dictates wether the pages should change automatically. Defaults to false
-  *   -startIndex: (INTEGER) the index of the first item to display. Defaults to 0.
-  *   -interval: (INTEGER) the interval at which to change page if auto is set to true. Defaults to 5000.
-  *
+  * Settings:
+  *   -onPan: (function)
+        Callback function that is invoked when the slides are moving.
+        This would be the place to invoke any lazy loading function if in use.
+      -scaleModifier: (decimal value between 0 and 1)
+        Determines how much images are scaled down when the fade away. Defaults to 0.25.
+      -resizeThrottleDelay (integer)
+        Determines how often the slider should recalculate sizes when the window resizes.
+        The lower the number, the more often the recalculation will occur, but it will
+        also have a bigger performance impact. Defaults to 50.
   */
   return function(elem, settings) {
+    // Mapping of settings
     settings = settings || {};
+    settings.onPan = settings.onPan || null;
+    settings.scaleModifier = settings.scaleModifier || 0.25;
+    settings.resizeThrottleDelay = settings.resizeThrottleDelay || 50;
+
+    // State variables
     var pages = elem.querySelectorAll('.fade-slider__page');
     var indicators = elem.querySelectorAll('.fade-slider__indicator');
     var hammerTime;
@@ -118,7 +131,7 @@ var fallbackThrottle = function(func, wait) {
 
       //loop all pages and animate them
       var transform, pos, page, scale, opacity;
-      var scaleModifier = 0.25;
+      var scaleModifier = settings.scaleModifier;
       for (var i = 0; i < pages.length; i++) {
         page = pages[i];
 
@@ -163,7 +176,7 @@ var fallbackThrottle = function(func, wait) {
 
       // if an onPan callback has been defined, invoke it now
       if (settings.onPan) {
-        settings.onPan(showIndex, percent, animate);
+        settings.onPan(showIndex, percent);
       }
     };
 
@@ -217,15 +230,6 @@ var fallbackThrottle = function(func, wait) {
           pages[i].style.width = containerSize + 'px';
         }
 
-        // TODO: Remove dependency upon layout breakpoints
-        //var padding = $(window).width() >= window.settings.layoutBreakpoint ? window.settings.gutter : window.settings.gutterSmall;
-
-        // TODO: Remove height and format restriction
-        //var height = (containerSize - padding) * (380 / 560);
-        //The height can never be taller than the max height. In that case the bottom of the image is cropped
-        //var maxHeight = $(window).height() - 300;
-        //height = Math.min(height, maxHeight);
-
         // Set the height of the page list to the height of the heighest page
         setTimeout(function () {
           var heighestHeight = 0;
@@ -256,7 +260,7 @@ var fallbackThrottle = function(func, wait) {
       elem.classList.add('initialized');
 
       //hook up resize event to reinitialize the size of the pages.
-      window.addEventListener('resize', throttle(initializeSize, 50, {leading: true}));
+      window.addEventListener('resize', throttle(initializeSize, settings.resizeThrottleDelay, {leading: true}));
 
       //hook up click events to all pages
 
@@ -334,7 +338,6 @@ var fallbackThrottle = function(func, wait) {
         } else {
           setTimeout(function() {
             elem.classList.remove('linear-ease');
-            //window.bLazy.revalidate();
           }, 350);
         }
       };

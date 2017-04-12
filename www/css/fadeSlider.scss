@@ -1,7 +1,3 @@
-$margin: 25px;
-$bp-small: 64em;
-
-// TODO: Remove this class dependency
 .clearfix {
   &:after {
     content: "";
@@ -32,85 +28,12 @@ $bp-small: 64em;
     float: left;
     width: 100%;
     display: none;
-    //max-height: calc(100vh - 300px); // TODO: Remove this restriction
-    //height: 100%;
     overflow: hidden;
   }
 
   &.initialized {
     .fade-slider__page {
       display: block;
-    }
-  }
-
-  &__indicators {
-    padding-top: $margin;
-    padding-left: $margin;
-    position: absolute;
-    bottom: 20px;
-    right: 50%;
-    transform: translateX(50%);
-
-    @media (min-width: $bp-small) {
-      position: static;
-      transform: translateX(100%);
-      right: 0;
-      bottom: 0;
-    }
-  }
-
-  &__indicator {
-    float: left;
-
-    /*width: 1px;
-    height: 19px;
-    background-color: #bebebe;*/
-
-    &:not(:last-child) {
-      margin-right: 5px;
-    }
-
-    &:after {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background-color: #e1e0e1;
-      border-radius: 50%;
-      display: block;
-    }
-
-    &.active {
-      &:after {
-        background-color: #9b9b9b;
-      }
-    }
-
-    // TODO: Remove media query, as the slider should not know about this stuff.
-    @media (min-width: $bp-small) {
-      width: 1px;
-      height: 19px;
-      padding-left: 5px;
-      padding-right: 5px;
-      margin-right: 15px;
-      cursor: pointer;
-      margin-left: -5px;
-
-      &:not(:last-child) {
-        margin-right: 15px;
-      }
-
-      &:after {
-        width: 1px;
-        height: 100%;
-        background-color: #bebebe;
-        border-radius: 0;
-      }
-
-      &.active {
-        &:after {
-          background-color: black;
-        }
-      }
     }
   }
 

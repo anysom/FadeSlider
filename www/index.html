@@ -7,23 +7,54 @@
     <script src="js/FadeSlider.js"></script>
 
     <style>
+      /* The page that contains the fade slider should have overflow:hidden */
+      .page {
+        overflow: hidden;
+      }
+
+      /*
+        Some styling for the slides, just for demonstration purposes.
+      */
       .slide {
         padding-left: 25px;
       }
-
       .slide img {
         width: 100%;
         height: auto;
       }
 
+      /*
+        The element that contains the falde-slider determines the width of the individual slides.
+        Each slide in the slider will be the same width as the containing element.
+      */
       .slider-container {
         width: 50%;
         margin: 100px auto 0;
       }
+
+      /*
+        Styling of the indicators for demo purposes
+      */
+      .fade-slider__indicators {
+        list-style: none;
+        margin-top: 20px;
+        padding-left: 25px;
+      }
+      .fade-slider__indicator {
+        float: left;
+        width: 2px;
+        height: 12px;
+        background: #ccc;
+        margin-right: 5px;
+      }
+
+      .fade-slider__indicator.active {
+        background: black;
+      }
     </style>
   </head>
   <body>
-    <div class="">
+    <div class="page">
       <h1>FadeSlider - demonstration</h1>
       <div class="slider-container">
         <div class="fade-slider">
@@ -44,6 +75,13 @@
               </div>
             </li>
           </ul>
+
+          <!-- Indicators are OPTIONAL -->
+          <ul class="fade-slider__indicators">
+            <li class="fade-slider__indicator"></li>
+            <li class="fade-slider__indicator"></li>
+            <li class="fade-slider__indicator"></li>
+          </ul>
         </div>
       </div>
     </div>
@@ -53,17 +91,18 @@
 
   <script>
     window.onload = function() {
-      // TODO: remove this crap
+      var fadeSliderElem = document.querySelector('.fade-slider');
+
+      // Settings are OPTIONAL
       var settings = {
-        gutter: 25,
-        gutterSmall: 8,
-        layoutBreakpoint: 1020
+        scaleModifier: 0.15,
+        resizeThrottleDelay: 50,
+        onPan: function (showIndex, percent) {
+          console.log('the slides are moving', showIndex, percent);
+        }
       };
 
-      window.settings = settings;
-
-      var fadeSliderElem = document.querySelector('.fade-slider');
-      var fadeSlider = new FadeSlider(fadeSliderElem, {});
+      var fadeSlider = new FadeSlider(fadeSliderElem, settings);
     };
   </script>
 </html>
