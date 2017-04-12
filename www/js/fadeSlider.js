@@ -68,7 +68,7 @@ var fallbackThrottle = function(func, wait) {
   *   -interval: (INTEGER) the interval at which to change page if auto is set to true. Defaults to 5000.
   *
   */
-  return function(elem) {
+  return function(elem, settings) {
     var pages = elem.find('.fade-slider__page');
     var indicators = elem.find('.fade-slider__indicator');
     var hammerTime;
@@ -92,11 +92,6 @@ var fallbackThrottle = function(func, wait) {
       indicators.removeClass('active');
       $(indicators[index]).addClass('active');
     };
-
-
-    var revalidateBLazy = throttle(function() {
-      window.bLazy.revalidate();
-    }, 400, {leading: false});
 
     /*
     * Responsible for showing the actual movement of items based on the panning
@@ -156,7 +151,10 @@ var fallbackThrottle = function(func, wait) {
         }
       }
 
-      revalidateBLazy();
+      // if an onPan callback has been defined, invoke it now
+      if (settings.onPan) {
+        onPan(showIndex, percent, animate);
+      }
     };
 
     /*
@@ -208,13 +206,21 @@ var fallbackThrottle = function(func, wait) {
 
         // TODO: Remove dependency upon layout breakpoints
         var padding = $(window).width() >= window.settings.layoutBreakpoint ? window.settings.gutter : window.settings.gutterSmall;
-        var height = (containerSize - padding) * (380 / 560);
+
+        // TODO: Remove height and format restriction
+        //var height = (containerSize - padding) * (380 / 560);
         //The height can never be taller than the max height. In that case the bottom of the image is cropped
-        var maxHeight = $(window).height() - 300;
-        height = Math.min(height, maxHeight);
+        //var maxHeight = $(window).height() - 300;
+        //height = Math.min(height, maxHeight);
 
-        elem.find('.fade-slider__list, .fade-slider__page').height(height);
-
+        // Set the height of the page list to the height of the heighest page
+        setTimeout(function () {
+          var heighestHeight = 0;
+          pages.each(function () {
+            heighestHeight = Math.max(heighestHeight, $(this).height());
+          });
+          elem.find('.fade-slider__list').height(heighestHeight);
+        }, 1);
 
         //set initial horizontal translation
         var paneIndex, translate;
@@ -272,9 +278,6 @@ var fallbackThrottle = function(func, wait) {
 
       elem.find('.fade-slider__indicator').first().addClass('active');
     };
-
-
-
     initialize();
 
 

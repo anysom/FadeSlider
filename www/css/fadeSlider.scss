@@ -24,14 +24,16 @@ $bp-small: 64em;
     position: relative;
     @extend .clearfix;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   &__page {
     float: left;
     width: 100%;
     display: none;
-    max-height: calc(100vh - 300px); // TODO: Remove this restriction
-    height: 100%;
+    //max-height: calc(100vh - 300px); // TODO: Remove this restriction
+    //height: 100%;
     overflow: hidden;
   }
 
