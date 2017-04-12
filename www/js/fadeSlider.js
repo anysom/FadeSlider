@@ -69,6 +69,7 @@ var fallbackThrottle = function(func, wait) {
   *
   */
   return function(elem, settings) {
+    settings = settings || {};
     var pages = elem.find('.fade-slider__page');
     var indicators = elem.find('.fade-slider__indicator');
     var hammerTime;
@@ -153,7 +154,7 @@ var fallbackThrottle = function(func, wait) {
 
       // if an onPan callback has been defined, invoke it now
       if (settings.onPan) {
-        onPan(showIndex, percent, animate);
+        settings.onPan(showIndex, percent, animate);
       }
     };
 
