@@ -18,22 +18,20 @@ var fallbackThrottle = function(func, wait) {
 ;(function(root, fadeSlider) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register fadeSlider as an anonymous module
-        define(["zeptojs", "lodash/throttle", "hammerjs"], fadeSlider);
+        define(["lodash/throttle", "hammerjs"], fadeSlider);
     } else if (typeof exports === 'object') {
       // Node. Does not work with strict CommonJS, but
       // only CommonJS-like environments that support module.exports,
     	// like Node.
       var throttle = require('lodash/throttle');
       var hammer = require('hammerjs');
-      var $ = require('zeptojs');
-      module.exports = fadeSlider($, throttle, hammer);
+      module.exports = fadeSlider(throttle, hammer);
     } else {
       // Browser globals. Register fadeSlider on window
-      var $ = root.$ || root.zepto || root.jQuery;
       var throttle = root._ !== undefined ? root._.throttle : null;
-      root.FadeSlider = fadeSlider($, throttle, root.Hammer);
+      root.FadeSlider = fadeSlider(throttle, root.Hammer);
     }
-})(this, function($, throttle, Hammer) {
+})(this, function(throttle, Hammer) {
   'use strict';
 
   /**
@@ -70,8 +68,8 @@ var fallbackThrottle = function(func, wait) {
   */
   return function(elem, settings) {
     settings = settings || {};
-    var pages = elem.find('.fade-slider__page');
-    var indicators = elem.find('.fade-slider__indicator');
+    var pages = elem.querySelectorAll('.fade-slider__page');
+    var indicators = elem.querySelectorAll('.fade-slider__indicator');
     var hammerTime;
     var containerSize = 0;
     var currentIndex = 0;
@@ -82,16 +80,27 @@ var fallbackThrottle = function(func, wait) {
       return (direction & Hammer.DIRECTION_HORIZONTAL) ? hProp : vProp;
     };
 
+    var getIndex = function(node) {
+      //var children = node.parentNode.childNodes;
+      for (var i = 0; i < pages.length; i++) {
+        if (node === pages[i]) break;
+      }
+      return i;
+    }
 
     var transformPage = function(page, transform) {
-      page.css('transform', transform);
-      page.css('mozTransform', transform);
-      page.css('webkitTransform', transform);
+      page.style.transform = transform;
+      page.style.mozTransform = transform;
+      page.style.webkitTransform = transform;
     };
 
     var activateIndicator = function(index) {
-      indicators.removeClass('active');
-      $(indicators[index]).addClass('active');
+      if (indicators.length > 0) {
+        for(var i = 0; i < indicators.length; i++) {
+          indicators[i].classList.remove('active');
+        }
+        indicators[index].classList.add('active');
+      }
     };
 
     /*
@@ -102,52 +111,52 @@ var fallbackThrottle = function(func, wait) {
       showIndex = Math.max(0, Math.min(showIndex, pages.length - 1));
 
       if (animate) {
-        elem.addClass('animate');
+        elem.classList.add('animate');
       } else {
-        elem.removeClass('animate');
+        elem.classList.remove('animate');
       }
 
       //loop all pages and animate them
-      var transform, pos, $page, scale, opacity;
+      var transform, pos, page, scale, opacity;
       var scaleModifier = 0.25;
       for (var i = 0; i < pages.length; i++) {
-        $page = $(pages[i]);
+        page = pages[i];
 
         //depending on the direction animate differently
         if (percent <= 0) {
           //animate all elements to the right of the current page horizontally
           if (i > showIndex || i === showIndex && animate) {
             //reset opacity
-            $page.css('opacity', 1);
+            page.style.opacity = 1;
             pos = (containerSize / 100) * (((i - showIndex) * 100) + percent);
             transform = 'translate3d(' + pos + 'px, 0, 0)';
-            transformPage($page, transform);
+            transformPage(page, transform);
           }
 
           //fade out the currently active element
           if ((i === showIndex && !animate) || (i === showIndex - 1 && animate)) {
             opacity = (100 + (animate ? -100 : percent)) / 100;
             scale = Math.min((100 + scaleModifier * (animate ? -100 : percent)) / 100, 1);
-            $page.css('opacity', opacity);
+            page.style.opacity = opacity;
             transform = 'scale(' + scale + ')';
-            transformPage($page, transform);
+            transformPage(page, transform);
           }
         } else {
           //animate all elements to the right of the current page horizontally
           if (i >= showIndex) {
             //reset opacity
-            $page.css('opacity', 1);
+            page.style.opacity = 1;
             pos = (containerSize / 100) * (((i - showIndex) * 100) + percent);
             transform = 'translate3d(' + pos + 'px, 0, 0)';
-            transformPage($page, transform);
+            transformPage(page, transform);
           }
 
           if (i === showIndex - 1) {
             opacity = (0 + (animate ? -100 : percent)) / 100;
             scale = Math.min((100 * (1 - scaleModifier) + scaleModifier * (animate ? -100 : percent)) / 100, 1);
-            $page.css('opacity', opacity);
+            page.style.opacity = opacity;
             transform = 'scale(' + scale + ')';
-            transformPage($page, transform);
+            transformPage(page, transform);
           }
         }
       }
@@ -190,7 +199,7 @@ var fallbackThrottle = function(func, wait) {
     * Initializes the HammerJS plugin
     */
     var initializeHammer = function() {
-      hammerTime = new Hammer.Manager(elem[0]);
+      hammerTime = new Hammer.Manager(elem);
       hammerTime.add(new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 10 }));
       hammerTime.on('panstart panmove panend pancancel', onPan);
     };
@@ -200,13 +209,16 @@ var fallbackThrottle = function(func, wait) {
     */
     var initializeSize = function() {
       //only initialize size when the window resizes in the width
-      if (windowWidth !== $(window).width()) {
-        windowWidth = $(window).width();
-        containerSize = elem.width();
-        pages.width(containerSize);
+      if (windowWidth !== window.innerWidth) {
+        windowWidth = window.innerWidth;
+        containerSize = elem.getBoundingClientRect().width;
+
+        for(var i = 0; i < pages.length; i++) {
+          pages[i].style.width = containerSize + 'px';
+        }
 
         // TODO: Remove dependency upon layout breakpoints
-        var padding = $(window).width() >= window.settings.layoutBreakpoint ? window.settings.gutter : window.settings.gutterSmall;
+        //var padding = $(window).width() >= window.settings.layoutBreakpoint ? window.settings.gutter : window.settings.gutterSmall;
 
         // TODO: Remove height and format restriction
         //var height = (containerSize - padding) * (380 / 560);
@@ -217,17 +229,18 @@ var fallbackThrottle = function(func, wait) {
         // Set the height of the page list to the height of the heighest page
         setTimeout(function () {
           var heighestHeight = 0;
-          pages.each(function () {
-            heighestHeight = Math.max(heighestHeight, $(this).height());
-          });
-          elem.find('.fade-slider__list').height(heighestHeight);
+
+          for(var i = 0; i < pages.length; i++) {
+            heighestHeight = Math.max(heighestHeight, pages[i].getBoundingClientRect().height);
+          }
+          elem.querySelector('.fade-slider__list').style.height = heighestHeight;
         }, 1);
 
         //set initial horizontal translation
         var paneIndex, translate;
         for (paneIndex = 0; paneIndex < pages.length; paneIndex++) {
           translate = 'translate3d(' + (containerSize * paneIndex) + 'px, 0, 0)';
-          transformPage($(pages[paneIndex]), translate);
+          transformPage(pages[paneIndex], translate);
         }
       }
     };
@@ -240,44 +253,55 @@ var fallbackThrottle = function(func, wait) {
       initializeSize();
       initializeHammer();
 
-      elem.addClass('initialized');
+      elem.classList.add('initialized');
 
       //hook up resize event to reinitialize the size of the pages.
-      $(window).on('resize', throttle(initializeSize, 50, {leading: true}));
+      window.addEventListener('resize', throttle(initializeSize, 50, {leading: true}));
 
       //hook up click events to all pages
-      pages.each(function() {
-        var xStart = 0;
-        var $this = $(this);
-        var index = $this.index();
 
-        //don't initiate goToIndex when dragging a page. Therefore check xStart agains x at the mouse up event.
-        $this.on('mousedown', function(event) {
-          xStart = event.clientX || 0;
-        });
+      for(var i = 0; i < pages.length; i++) {
+        // I have to encapsulate the initialization in a function to not mess with scopes
+        function initializePage(page) {
+          var xStart = 0;
+          var index = getIndex(page);
 
-        $this.on('mouseup', function(event) {
-          var diff = (event.clientX || 0) - xStart;
-          diff = Math.abs(diff);
+          //don't initiate goToIndex when dragging a page. Therefore check xStart agains x at the mouse up event.
+          pages[i].addEventListener('mousedown', function(event) {
+            xStart = event.clientX || 0;
+          });
 
-          //if the mouse has moved less than 10px goToIndex
-          //also index has to be other than the current index
-          if (diff < 10) {
-            var nextIndex = index === currentIndex ? currentIndex - 1 : index;
-            self.goToIndex(nextIndex);
-          }
-        });
-      });
+          pages[i].addEventListener('mouseup', function(event) {
+            var diff = (event.clientX || 0) - xStart;
+            diff = Math.abs(diff);
+
+            //if the mouse has moved less than 10px goToIndex
+            //also index has to be other than the current index
+            if (diff < 10) {
+              var nextIndex = index === currentIndex ? currentIndex - 1 : index;
+              self.goToIndex(nextIndex);
+            }
+          });
+        }
+
+        initializePage(pages[i]);
+      }
 
       //hook up click events to all indicators
-      elem.find('.fade-slider__indicator').on('click', function() {
-        var index = $(this).index();
-        if (index !== currentIndex) {
-          self.goToIndex(index);
+      var indicators = elem.querySelectorAll('.fade-slider__indicator');
+      if (indicators.length > 0) {
+        for (var i = 0; i < indicators.length; i++) {
+          indicators[i].addEventListener('click', function() {
+            var index = $(this).index();
+            if (index !== currentIndex) {
+              self.goToIndex(index);
+            }
+          });
         }
-      });
 
-      elem.find('.fade-slider__indicator').first().addClass('active');
+        indicators[0].classList.add('active');
+      }
+
     };
     initialize();
 
@@ -305,11 +329,11 @@ var fallbackThrottle = function(func, wait) {
         flips++;
         activateIndicator(currentIndex);
         if (flips < diffAbs) {
-          elem.addClass('linear-ease');
+          elem.classList.add('linear-ease');
           setTimeout(flip, 250);
         } else {
           setTimeout(function() {
-            elem.removeClass('linear-ease');
+            elem.classList.remove('linear-ease');
             //window.bLazy.revalidate();
           }, 350);
         }

@@ -3,7 +3,6 @@
     <link href="css/main.css" rel="stylesheet" type="text/css">
     <link href="css/FadeSlider.min.css" rel="stylesheet" type="text/css">
 
-    <script src="lib/zepto.js"></script>
     <script src="lib/hammer.min.js"></script>
     <script src="js/FadeSlider.js"></script>
 
@@ -64,7 +63,7 @@
       window.settings = settings;
 
       var fadeSliderElem = document.querySelector('.fade-slider');
-      var fadeSlider = new FadeSlider($(fadeSliderElem));
+      var fadeSlider = new FadeSlider(fadeSliderElem, {});
     };
   </script>
 </html>
