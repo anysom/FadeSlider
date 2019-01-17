@@ -237,7 +237,7 @@ var fallbackThrottle = function(func, wait) {
           for(var i = 0; i < pages.length; i++) {
             heighestHeight = Math.max(heighestHeight, pages[i].getBoundingClientRect().height);
           }
-          elem.querySelector('.fade-slider__list').style.height = heighestHeight;
+          elem.querySelector('.fade-slider__list').style.height = heighestHeight + 'px';
         }, 1);
 
         //set initial horizontal translation
