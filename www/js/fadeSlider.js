@@ -344,5 +344,13 @@ var fallbackThrottle = function(func, wait) {
 
       flip();
     };
+
+    this.next = function () {
+      self.goToIndex(currentIndex + 1);
+    };
+
+    this.prev = function () {
+      self.goToIndex(currentIndex - 1);
+    };
   };
 });
